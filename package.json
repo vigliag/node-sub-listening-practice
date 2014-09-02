@@ -1,14 +1,14 @@
 {
   "name": "subplayer",
-  "version": "0.0.0",
-  "description": "simple program to stop an mplayer video after a subtitle line",
+  "version": "0.1.0",
+  "description": "simple mplayer interface to stop and repeat a video after a subtitle line",
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "vigliag",
   "license": "ISC",
+  "private": true,
   "dependencies": {
-    "keypress": "^0.2.1"
   }
 }
