@@ -1,5 +1,4 @@
-var childProcess = require('child_process');
-var path = require('path');
+var Mplayer = require('./mplayer');
 
 var videoPath = process.argv[2];
 if(!videoPath){
@@ -8,21 +7,7 @@ if(!videoPath){
 }
 
 console.log("videoPath" ,videoPath);
-
-function onMplayerExit(){
-	console.log("Mplayer exited");
-}
-var mplayer_conf_path = path.join(__dirname, "mplayer_input.conf");
-var mplayerString = 'mplayer -slave -msglevel ass=6 -input conf="'+ mplayer_conf_path  + '" ' + videoPath;
-var mplayerProcess = childProcess.exec(mplayerString, onMplayerExit);
-
-function sendToMplayer(command){
-	mplayerProcess.stdin.write(command + "\n");
-}
-
-function pauseMplayer(){
-	sendToMplayer("pause");
-}
+var mplayer = new Mplayer(videoPath);
 
 var subEnds = {}; //endTimeMillis -> {start: ,text: , end:}
 
@@ -32,60 +17,46 @@ var paused = false;
 var lastTime = 0.0;
 var lastEvent = null;
 
-var assRegex = /Event at (\d+), \+(\d+):.*,\d*,\d*,\d*,\d+,,(.*)/;
-var timeRegex = / V:\s+(\d+\.\d+)/;
+//mplayerProcess.stderr.pipe(process.stdout);
+mplayer.sendCommand("sub_select " + subtitleIndex); 
+mplayer.sendCommand("sub_visibility 0"); 
 
-mplayerProcess.stderr.pipe(process.stdout);
-sendToMplayer("sub_select " + subtitleIndex); 
-sendToMplayer("sub_visibility 0"); 
-mplayerProcess.stdout.on('data', function(data){
-	var result;
+mplayer.on('time', function (t){
+	if(t > lastTime){
+		lastTime = t;
+		tick(t);
+	}
+});
 
-	console.log(data);
+mplayer.on('subtitle', function (subEvent){
+	schedulePause(subEvent);
+});
 
-	if(data.indexOf("repeatsub") == 0){
+mplayer.on('control', function (key,command){
+	if(command == "i_pause"){
+		paused = false;
+		mplayer.sendCommand("sub_visibility 0"); 
+		mplayer.sendCommand("pause");
+	};
+
+	if(command == "i_repeatsub"){
 		if(lastEvent){
-			if(data.indexOf("repeatsubenabled") == 0){
-				sendToMplayer("sub_visibility 1");
-			}
+			mplayer.sendCommand("sub_visibility 1");
 			seekToEvent(lastEvent);
 		}
 	}
 
-	if(data.indexOf("pause") == 0){
-		paused = false;
-		sendToMplayer("sub_visibility 0"); 
-		sendToMplayer("pause");
+	if(command == "i_repeat"){
+		seekToEvent(lastEvent);
 	}
-
-	//if time info
-	result = timeRegex.exec(data);
-	if(result){
-		var parsedTime = parseFloat(result[1]) *1000;
-		if(parsedTime > lastTime){
-			lastTime = parsedTime;
-			tick(parsedTime);
-		}
-	}
-
-	//if subtitle info
-	result = assRegex.exec(data);
-	if(result){
-		var time = parseInt(result[1]);
-		var length = parseInt(result[2]);
-		var text = result[3];
-		console.log('ass: time: ' + time + " length: " + length + " text: " + text );
-		schedulePause(new SubEvent(time,length,text));
-	}
-
-});
+})
 
 function seekToEvent(subEvent){
 	lastTime = 0;
 	var s = ("seek " + ((subEvent.start / 1000) - 0.1)) + " 2";
 	console.log(s)
-	sendToMplayer(s);
-	sendToMplayer("pause"); //unpause actually
+	mplayer.sendCommand(s);
+	mplayer.sendCommand("pause"); //unpause actually
 	paused = false;
 	canpause = false;
 	setTimeout(function(){canpause=true}, 1000);
@@ -98,7 +69,7 @@ function tick(currentTimeMillis){
 		if(canpause){
 			lastEvent = maybeSubEnd;
 			paused = true;
-			sendToMplayer("pause");
+			mplayer.sendCommand("pause");
 		}
 	}
 }
@@ -110,9 +81,3 @@ function schedulePause(subEvent){
 	console.log("pause scheduled for " + endCents)
 }
 
-function SubEvent(time,length,text){
-	this.start = time;
-	this.length = length;
-	this.end = time+length;
-	this.text = text;
-}
