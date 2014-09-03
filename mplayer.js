@@ -71,7 +71,7 @@ proto.parseLine = function parseLine(data){
 }
 
 proto.sendCommand = function sendCommand(command){
-	this.mplayerProcess.stdin.write(command + os.EOL);
+	this.mplayerProcess.stdin.write("pausing_keep_force " + command + os.EOL);
 }
 
 module.exports = Mplayer;

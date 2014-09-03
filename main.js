@@ -47,7 +47,8 @@ mplayer.on('control', function (key,command){
 	}
 
 	if(command == "i_repeat"){
-		seekToEvent(lastEvent);
+		if(lastEvent)
+			seekToEvent(lastEvent);
 	}
 })
 
