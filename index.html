@@ -2,26 +2,68 @@
 <html>
   <head>
     <title>Hello World!</title>
+
+    <style>
+		#holder { border: 10px dashed #ccc; width: 300px; height: 100px; margin: 20px auto;}
+		#holder.hover { border: 10px dashed #333; }
+	</style>
+    <script>
+    document.addEventListener('DOMContentLoaded',function(){
+
+		function onVideoFileChosen(fileName){
+			VideoFile.streamsInFile(fileName, function(video, audio, subs){
+				
+	    		//empty list
+	    		var subList = document.getElementById('subList');
+	    		while (subList.firstChild) {
+				  subList.removeChild(subList.firstChild);
+				}
+
+	    		subs.forEach(function(sub){
+	    			var o = document.createElement('option');
+	    			o.innerText = sub.language + " " +  (sub.name || "");
+	    			subList.appendChild(o);
+	    		})
+	    	});
+		}
+
+    	var gui = require('nw.gui');
+    	var VideoFile = require('./videoFile');
+
+    	var holder = document.getElementById('holder');
+		var fileNameHolder = document.getElementById('fileName');
+
+    	var videoPath = gui.App.argv[0] || null;
+    	fileNameHolder.innerText = videoPath || "Drop a file here";
+
+    	if(videoPath !== null) {
+    		onVideoFileChosen(videoPath);
+    	}
+
+    	window.ondragover = function(e) { e.preventDefault(); return false };
+		window.ondrop = function(e) { e.preventDefault(); return false };
+
+		holder.ondrop = function (e) {
+		  e.preventDefault();
+		  var videoPath = e.dataTransfer.files[0].path;
+		  fileNameHolder.innerText = videoPath;
+
+		  if(videoPath !== null) {
+    		onVideoFileChosen(videoPath);
+    	  }
+		  return false;
+		};
+    });
+
+    </script>
   </head>
   <body>
     <h1>Choose which video file and subitle to use</h1>
-    <script>
-    document.addEventListener('DOMContentLoaded',function(){
-    	var gui = require('nw.gui');
-    	var VideoFile = require('./videoFile');
-    	var videoPath = gui.App.argv[0] || null;
-
-    	VideoFile.streamsInFile(videoPath, function(video, audio, subs){
-    		console.log(subs);
-    		var subList = document.getElementById('subList');
-    		subs.forEach(function(sub){
-    			var o = document.createElement('option');
-    			o.innerText = sub.language + " " +  sub.name;
-    			subList.appendChild(o);
-    		})
-    	});
-    });
-    </script>
+    <h3>Video File:</h3>
+    <div id="holder">
+    	<p id="fileName">
+    	</p>
+    </div>
     <select id="subList">
     	
     </select>
