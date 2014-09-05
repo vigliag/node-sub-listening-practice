@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Hello World!</title>
+  </head>
+  <body>
+    <h1>Choose which video file and subitle to use</h1>
+    <script>
+    document.addEventListener('DOMContentLoaded',function(){
+    	var gui = require('nw.gui');
+    	var VideoFile = require('./videoFile');
+    	var videoPath = gui.App.argv[0] || null;
+
+    	VideoFile.streamsInFile(videoPath, function(video, audio, subs){
+    		console.log(subs);
+    		var subList = document.getElementById('subList');
+    		subs.forEach(function(sub){
+    			var o = document.createElement('option');
+    			o.innerText = sub.language + " " +  sub.name;
+    			subList.appendChild(o);
+    		})
+    	});
+    });
+    </script>
+    <select id="subList">
+    	
+    </select>
+  </body>
+</html>

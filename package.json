@@ -2,7 +2,7 @@
   "name": "subplayer",
   "version": "0.1.0",
   "description": "simple mplayer interface to stop and repeat a video after a subtitle line",
-  "main": "main.js",
+  "main": "index.html",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,5 +10,7 @@
   "license": "ISC",
   "private": true,
   "dependencies": {
+    "fluent-ffmpeg": "^2.0.0-rc2",
+    "lodash": "^2.4.1"
   }
 }
