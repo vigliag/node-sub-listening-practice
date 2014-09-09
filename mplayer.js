@@ -7,14 +7,14 @@ var SubEvent = require("./subevent");
 
 function Mplayer(videoPath){
 	var _this = this;
-	
+
 	//set custom conf file to obtain pressed keys through stderr
 	var mplayer_conf_path = path.join(__dirname, "mplayer_input.conf");
 	if(process.platform === 'win32'){
 		mplayer_conf_path = mplayer_conf_path.replace(/\\/g,"/" ).slice(2);
 	}
 
-	var mplayerString = 'mplayer -slave -msglevel ass=6 -input' + 
+	var mplayerString = 'mplayer -slave -noautosub -msglevel ass=6 -input' +
 		' conf="' +	 mplayer_conf_path  + '" "' + videoPath + '"';
 
 	this.mplayerProcess = childProcess.exec(mplayerString, function(){
@@ -35,7 +35,7 @@ var proto = Mplayer.prototype;
 
 var assRegex = /Event at (\d+), \+(\d+):.*,\d*,\d*,\d*,\d+,,(.*)/;
 var timeRegex = / V:\s+(\d+\.\d+)/;
-var controlRegex = /Invalid command for bound key \'(\w+)\': \'(\w+)\'/; 
+var controlRegex = /Invalid command for bound key \'(\w+)\': \'(\w+)\'/;
 
 proto.parseLine = function parseLine(data){
 	var result;
@@ -68,10 +68,15 @@ proto.parseLine = function parseLine(data){
 		this.emit('subtitle', new SubEvent(time,length,text));
 		return;
 	}
-}
+};
 
 proto.sendCommand = function sendCommand(command){
 	this.mplayerProcess.stdin.write("pausing_keep_force " + command + os.EOL);
-}
+	console.log("sent to mpeg:" , command);
+};
+
+proto.subVisibility = function subVisibility(value){
+	this.sendCommand("sub_visibility " + (value === true ? 1 : 0));
+};
 
 module.exports = Mplayer;

@@ -1,71 +1,86 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Hello World!</title>
 
-    <style>
-		#holder { border: 10px dashed #ccc; width: 300px; height: 100px; margin: 20px auto;}
-		#holder.hover { border: 10px dashed #333; }
-	</style>
-    <script>
-    document.addEventListener('DOMContentLoaded',function(){
+<head>
+  <title>Hello World!</title>
 
-		function onVideoFileChosen(fileName){
-			VideoFile.streamsInFile(fileName, function(video, audio, subs){
-				
-	    		//empty list
-	    		var subList = document.getElementById('subList');
-	    		while (subList.firstChild) {
-				  subList.removeChild(subList.firstChild);
-				}
+  <style>
+    #holder {
+      border: 10px dashed #ccc;
+      width: 300px;
+      height: 100px;
+      margin: 20px auto;
+    }
+    #holder.hover {
+      border: 10px dashed #333;
+    }
+  </style>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
 
-	    		subs.forEach(function(sub){
-	    			var o = document.createElement('option');
-	    			o.innerText = sub.language + " " +  (sub.name || "");
-	    			subList.appendChild(o);
-	    		})
-	    	});
-		}
+      function onVideoFileChosen(fileName) {
+        VideoFile.streamsInFile(fileName, function(err, video, audio, subs) {
+          if(err) return console.error(err);
+          //empty list
+          var subList = document.getElementById('subList');
+          while (subList.firstChild) {
+            subList.removeChild(subList.firstChild);
+          }
 
-    	var gui = require('nw.gui');
-    	var VideoFile = require('./videoFile');
+          subs.forEach(function(sub) {
+            var o = document.createElement('option');
+            o.innerText = sub.language + " " + (sub.name || "");
+            subList.appendChild(o);
+          });
+        });
+      }
 
-    	var holder = document.getElementById('holder');
-		var fileNameHolder = document.getElementById('fileName');
+      var gui = require('nw.gui');
+      var VideoUtils = require('./videoUtils');
 
-    	var videoPath = gui.App.argv[0] || null;
-    	fileNameHolder.innerText = videoPath || "Drop a file here";
+      var holder = document.getElementById('holder');
+      var fileNameHolder = document.getElementById('fileName');
 
-    	if(videoPath !== null) {
-    		onVideoFileChosen(videoPath);
-    	}
+      var videoPath = gui.App.argv[0] || null;
+      fileNameHolder.innerText = videoPath || "Drop a file here";
 
-    	window.ondragover = function(e) { e.preventDefault(); return false };
-		window.ondrop = function(e) { e.preventDefault(); return false };
+      if (videoPath !== null) {
+        onVideoFileChosen(videoPath);
+      }
 
-		holder.ondrop = function (e) {
-		  e.preventDefault();
-		  var videoPath = e.dataTransfer.files[0].path;
-		  fileNameHolder.innerText = videoPath;
+      window.ondragover = function(e) {
+        e.preventDefault();
+        return false;
+      };
+      window.ondrop = function(e) {
+        e.preventDefault();
+        return false;
+      };
 
-		  if(videoPath !== null) {
-    		onVideoFileChosen(videoPath);
-    	  }
-		  return false;
-		};
+      holder.ondrop = function(e) {
+        e.preventDefault();
+        var videoPath = e.dataTransfer.files[0].path;
+        fileNameHolder.innerText = videoPath;
+
+        if (videoPath !== null) {
+          onVideoFileChosen(videoPath);
+        }
+        return false;
+      };
     });
+  </script>
+</head>
 
-    </script>
-  </head>
-  <body>
-    <h1>Choose which video file and subitle to use</h1>
-    <h3>Video File:</h3>
-    <div id="holder">
-    	<p id="fileName">
-    	</p>
-    </div>
-    <select id="subList">
-    	
-    </select>
-  </body>
+<body>
+  <h1>Choose which video file and subitle to use</h1>
+  <h3>Video File:</h3>
+  <div id="holder">
+    <p id="fileName">
+    </p>
+  </div>
+  <select id="subList">
+
+  </select>
+</body>
+
 </html>
