@@ -37,8 +37,8 @@ function parseASS(filePath, cb){
 
 			return {
 				start : start,
-				length : length,
-				end :  end - start,
+				length : end - start,
+				end :  end,
 				text : dialogue.get('Text').replace(/\r$/, "")
 			};
 		})
@@ -60,6 +60,17 @@ function shouldBeOmitted(text){
 	//should omit \\an8 too?
 }
 
+function parseSub(filePath, codec, cb){
+	if(codec == 'ass'){
+		return parseASS(filePath, cb);
+	}
+	if(codec == 'srt'){
+		return parseSRT(filePath,cb);
+	}
+	return cb(new Error('no codec avaiable for parsing ' + codec));
+}
+
+exports.parseSub = parseSub;
 exports.parseSRT = parseSRT;
 exports.parseASS = parseASS;
 exports.strToMillis = strToMillis;

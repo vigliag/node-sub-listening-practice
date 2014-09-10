@@ -5,16 +5,19 @@
   <title>Hello World!</title>
 
   <style>
-    #holder {
+    .droppable {
       border: 10px dashed #ccc;
       width: 300px;
       height: 100px;
       margin: 20px auto;
     }
-    #holder.hover {
+    .droppable.hover {
       border: 10px dashed #333;
     }
   </style>
+  <script src="vendor/react.js"></script>
+  <script src="vendor/JSXTransformer.js"></script>
+  <script type="text/jsx" src="src/main.jsx"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
 
@@ -38,11 +41,7 @@
       var gui = require('nw.gui');
       var VideoUtils = require('./videoUtils');
 
-      var holder = document.getElementById('holder');
-      var fileNameHolder = document.getElementById('fileName');
-
       var videoPath = gui.App.argv[0] || null;
-      fileNameHolder.innerText = videoPath || "Drop a file here";
 
       if (videoPath !== null) {
         onVideoFileChosen(videoPath);
@@ -57,16 +56,7 @@
         return false;
       };
 
-      holder.ondrop = function(e) {
-        e.preventDefault();
-        var videoPath = e.dataTransfer.files[0].path;
-        fileNameHolder.innerText = videoPath;
 
-        if (videoPath !== null) {
-          onVideoFileChosen(videoPath);
-        }
-        return false;
-      };
     });
   </script>
 </head>
@@ -74,10 +64,7 @@
 <body>
   <h1>Choose which video file and subitle to use</h1>
   <h3>Video File:</h3>
-  <div id="holder">
-    <p id="fileName">
-    </p>
-  </div>
+
   <select id="subList">
 
   </select>

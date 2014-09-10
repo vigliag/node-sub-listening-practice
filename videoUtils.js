@@ -27,7 +27,7 @@ function streamsInFile(videoPath, cb){
 }
 
 function extractSubtitle(videoPath, trackId, codec, outputPath, cb){
-	var option = '-codec:s:0.' + trackId +' ' + codec;
+	var option = '-map 0:s:' + trackId +' ';
 	var ffmpegString = 'ffmpeg -i "' + videoPath + '" -vn -an ' + option + ' "' + outputPath + '"';
 	console.log('executing' , ffmpegString);
 	childProcess.exec(ffmpegString, function(error, stdout, stderr){
