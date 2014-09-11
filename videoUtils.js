@@ -1,6 +1,6 @@
 var ffmpeg = require('fluent-ffmpeg');
 var childProcess = require('child_process');
-var path = require('path');
+var Path = require('path');
 var _ = require('lodash');
 
 function minimumTrackInformation(track, index){
@@ -32,11 +32,17 @@ function extractSubtitle(videoPath, trackId, codec, outputPath, cb){
 	console.log('executing' , ffmpegString);
 	childProcess.exec(ffmpegString, function(error, stdout, stderr){
 		if(error) console.error("error " , error);
-		console.log('stdout', stdout);
 		console.log('stderr', stderr);
 		cb(error, outputPath);
 	});
 }
 
+function videoFileIsValid(fileName){
+	var validExtnames = [".avi", ".mkv", ".mp4"];
+	var extname = Path.extname(fileName);
+	return validExtnames.indexOf(extname) !== -1;
+}
+
+exports.videoFileIsValid = videoFileIsValid;
 exports.streamsInFile = streamsInFile;
 exports.extractSubtitle = extractSubtitle;

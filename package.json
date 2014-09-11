@@ -3,6 +3,11 @@
   "version": "0.1.0",
   "description": "simple mplayer interface to stop and repeat a video after a subtitle line",
   "main": "index.html",
+  "window": {
+    "title": "SubPlayer",
+    "width": 300,
+    "height": 600
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -15,5 +20,8 @@
     "lodash": "^2.4.1",
     "srt": "0.0.3",
     "temp": "^0.8.1"
+  },
+  "devDependencies": {
+    "gulp-react": "^1.0.0"
   }
 }
