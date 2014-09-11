@@ -15,7 +15,16 @@
       border: 8px dashed #333;
     }
   </style>
-
+  <script>
+  window.ondragover = function(e) {
+    e.preventDefault();
+    return false;
+  };
+  window.ondrop = function(e) {
+    e.preventDefault();
+    return false;
+  };
+  </script>
   <script src="vendor/react.js"></script>
   <script src="vendor/JSXTransformer.js"></script>
   <script type="text/jsx" src="src/components.jsx"></script>

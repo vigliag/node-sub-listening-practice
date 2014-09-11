@@ -2,7 +2,7 @@ var Mplayer = require('./mplayer');
 var SubClock = require('./subclock');
 
 function SubPlayer(videoPath){
-
+	console.log("ASFAFSWAFW" ,videoPath);
 	this.subAlwaysVisible = false;
 	this.displaySubsInMplayer = true; //not used
 
@@ -10,13 +10,14 @@ function SubPlayer(videoPath){
 	this.lastTime = -1;
 	this.lastLine = null;
 
-	this.subclock = this.setSub([]);
+	this.subclock = null;
+	this.setSub([]);
 	this.mplayer = new Mplayer(videoPath);
 
 	var _this = this;
 
 	//this.mplayer.sendCommand("sub_select " + subtitleIndex);
-	this.mplayer.subVisibility(subAlwaysVisible);
+	this.mplayer.subVisibility(this.subAlwaysVisible);
 
 	this.mplayer.on('time', function (t){
 		if(t > this.lastTime){ //note: this way subclock pauses when seeking back
@@ -28,7 +29,7 @@ function SubPlayer(videoPath){
 	this.mplayer.on('control', function (key,command){
 		if(command == "i_pause"){
 			_this.paused = ! _this.paused;
-			_this.mplayer.subVisibility(subAlwaysVisible);
+			_this.mplayer.subVisibility(this.subAlwaysVisible);
 			_this.mplayer.sendCommand("pause");
 		}
 
@@ -71,3 +72,9 @@ proto.setSub = function setSub(lines){
 		_this.mplayer.sendCommand("pause");
 	});
 };
+
+proto.getSubLines = function (){
+	return this.subclock.lines;
+};
+
+module.exports = SubPlayer;
