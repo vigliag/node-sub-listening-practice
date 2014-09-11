@@ -40,8 +40,6 @@ var controlRegex = /Invalid command for bound key \'(\w+)\': \'(\w+)\'/;
 proto.parseLine = function parseLine(data){
 	var result;
 
-	console.log(data);
-
 	result = controlRegex.exec(data);
 	if(result){
 		var key = result[1];

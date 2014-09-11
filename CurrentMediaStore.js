@@ -37,10 +37,11 @@ CurrentMediaStore.prototype.loadVideoFile = function (fileName) {
 
 CurrentMediaStore.prototype.setSub = function (id) {
   this.chosenSub = id;
-  console.log("chosen "+ id);
+  console.log("chosen "+ this.chosenSub);
 };
 
 CurrentMediaStore.prototype.getChosenSub = function(){
+  console.log("getChosenSub", this.chosenSub);
   return this.subtitleList()[this.chosenSub];
 };
 

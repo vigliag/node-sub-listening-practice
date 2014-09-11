@@ -8,7 +8,7 @@ function SubClock(subEvents, granularity){
 	this.startMap = {};
 	this.endMap = {}; //{ endTimeMillis : {start: , text: , end: } }
 	this.lines.forEach(this.mapLine, this);
-
+	console.log("ENDMAP", this.endMap);
 	this.currentLines = [];
 }
 
@@ -21,17 +21,19 @@ proto.isCurrent = function(line, time){
 
 proto.tick = function(time) {
 	var atime = this.approx(time);
-
-	var endingLine = endMap[atime];
+	console.log("time", time, atime);
+	var endingLine = this.endMap[atime];
 	if(endingLine){
+		console.log("emitting line_end", endingLine);
 		this.emit('line_end', endingLine);
 	}
 
+	var _this = this;
 	this.currentLines = this.currentLines.filter(function(line){
-		return this.isCurrent(line,time);
+		return _this.isCurrent(line,time);
 	});
 
-	var startingLine = startMap[atime];
+	var startingLine = this.startMap[atime];
 	if(startingLine){
 		this.emit('line_start', startingLine);
 		this.currentLines.push(startingLine);
@@ -60,7 +62,7 @@ proto.approx = function(time){
 
 proto.mapLine = function(line){
 	var astart = this.approx(line.start);
-	var aend = this.approx(line.end);
+	var aend = this.approx(line.end) - 100;
 	this.startMap[astart] = line;
 	this.endMap[aend] = line;
 };

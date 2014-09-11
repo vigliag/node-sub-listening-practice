@@ -9,7 +9,7 @@ var player = null;
 
 function launchPlayer(){
   player = new SubPlayer(cms.chosenFile);
-  player.setSub(cms.getChosenSub().lines);
+  player.setSub(cms.getChosenSub());
 }
 
 function render(){
@@ -52,7 +52,7 @@ var FileChooserGUI = React.createClass({
         placeHolderText={"Drop a video here"} />
       <h3>Choose a subtitle file:</h3>
       <SubtitleChooser
-          onSubIndex={cms.setSub}
+          onSubIndex={cms.setSub.bind(cms)}
           subtitles={cms.subtitleList()} />
       <FileDropperBox
         onVideoFileChosen={cms.loadSubFile.bind(cms)}
