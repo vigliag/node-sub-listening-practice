@@ -1,24 +1,23 @@
 var fs = require('fs');
 var _ = require('lodash');
-var srt = require('srt');
+var srtparser = require('subtitles-parser');
 var libjass = require("./vendor/libjass.js");
 
 
-function parseSRT(filename, cb){
-	srt(fileName, "en", function (err, data) {
-
-		if(err) return cb(err);
-
-		var lines = data.map(function(line){
+function parseSRT(fileName, callback){
+	fs.readFile(fileName, {encoding: "utf8"}, function(err,data){
+		if(err) return callback(err);
+		var parsedlines = srtparser.fromSrt(data, true);
+		var lines = parsedlines.map(function(line){
 			return {
+				id: line.id,
 				start : line.startTime,
 				length : line.endTime - line.startTime,
 				end : line.endTime,
-				text : line.languages.en
+				text : line.text
 			};
 		});
-
-		cb(null, lines);
+		callback(null, lines);
 	});
 }
 

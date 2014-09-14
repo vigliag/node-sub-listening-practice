@@ -4,13 +4,15 @@ var Path = require('path');
 var _ = require('lodash');
 
 function minimumTrackInformation(track, index){
+	var tags = track.tags || {};
+	var disposition = track.disposition || {};
 	return {
 		index : index, //for mplayer
 		streamId: track.index, //stream id for extraction using ffmpeg
 		codec : track.codec_name,
-		language: track.tags.language,
-		name: track.tags.title,
-		default: track.disposition.default === 1 ? true : false
+		language: tags.language,
+		name: tags.title,
+		default: disposition.default === 1 ? true : false
 	};
 }
 
@@ -19,9 +21,12 @@ function streamsInFile(videoPath, cb){
 	ffmpeg.ffprobe(videoPath, function(err, data){
 		if(err) return cb(err);
 		var streams = _.groupBy(data.streams, 'codec_type');
-		var subs = streams.subtitle.map(minimumTrackInformation);
-		var audio = streams.audio.map(minimumTrackInformation);
-		var video = streams.video.map(minimumTrackInformation);
+		var subs = streams.subtitle || [];
+		var audio = streams.audio || [];
+		var video = streams.video || [];
+		subs = subs.map(minimumTrackInformation);
+		audio = audio.map(minimumTrackInformation);
+		video = video.map(minimumTrackInformation);
 		return cb(null, video, audio, subs);
 	});
 }

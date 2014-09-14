@@ -19,6 +19,7 @@
     "fluent-ffmpeg": "^2.0.0-rc2",
     "lodash": "^2.4.1",
     "srt": "0.0.3",
+    "subtitles-parser": "0.0.2",
     "temp": "^0.8.1"
   },
   "devDependencies": {

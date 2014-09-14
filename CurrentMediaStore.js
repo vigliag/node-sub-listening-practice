@@ -64,9 +64,10 @@ CurrentMediaStore.prototype.loadSubFile = function(fileName){
   SubProvider.parseSubsFromExternalFileAsync(fileName).then(function(sub){
     _this.externalSubs.push(sub);
     _this.emit('state', _this.getState());
-  }).catch(function(e){
-    console.error("error adding external subtitle" + e.trace);
   });
+  /*.catch(function(e){
+    console.error("error adding external subtitle", e.trace);
+  });*/
 };
 
 module.exports = CurrentMediaStore;
