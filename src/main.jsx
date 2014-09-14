@@ -17,7 +17,26 @@ function render(){
 }
 
 var PlayerGUI = React.createClass({
-  render: function(){return <p>Should be playing</p>;}
+  propTypes: {
+    player: React.PropTypes.object.isRequired
+  },
+  getInitialState: function(){
+    return {currentLine: null};
+  },
+  componentDidMount: function(){
+    var _this = this;
+    this.props.player.on('current_line', function(line){
+      _this.setState({currentLine: line });
+    });
+  },
+  render: function(){
+    return(
+    <div className="playerGUI">
+    <p>Should be playing</p>
+    <WordLookupApp line={this.state.currentLine} />
+    </div>
+    );
+  }
 });
 
 var MainGUI = React.createClass({
