@@ -44,7 +44,7 @@ proto.tick = function(time) {
 };
 
 proto.seek = function(time){
-	this.currentLines = linesAt(time);
+	this.currentLines = this.linesAt(time);
 	return this.currentLines;
 };
 

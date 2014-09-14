@@ -1,78 +1,105 @@
 /** @jsx React.DOM */
+/*global React:false, WordLookupApp:false, FileDropperBox:false, SubtitleChooser:false*/
+
 var gui = require('nw.gui');
 var CurrentMediaStore = require('./CurrentMediaStore');
 var SubPlayer = require('./subplayer');
-var cms = new CurrentMediaStore();
-var player = null;
 
 (function(){
-
-function launchPlayer(){
-  player = new SubPlayer(cms.chosenFile);
-  player.setSub(cms.getChosenSub());
-}
-
-function render(){
-  React.renderComponent(<MainGUI cms={cms} player={player} onStartPlaying={launchPlayer}/>,document.getElementById('wrapper'));
-}
 
 var PlayerGUI = React.createClass({
   propTypes: {
     player: React.PropTypes.object.isRequired
   },
   getInitialState: function(){
-    return {currentLine: null};
+    return {playerState: this.props.player.getState()};
   },
   componentDidMount: function(){
     var _this = this;
-    this.props.player.on('current_line', function(line){
-      _this.setState({currentLine: line });
+    this.props.player.on('state', function(state){
+      _this.setState({'playerState': state});
     });
   },
   render: function(){
+    var line = this.state.playerState.currentLines[0];
+    var text = line !== undefined ? line.text : "" ;
     return(
     <div className="playerGUI">
-    <p>Should be playing</p>
-    <WordLookupApp line={this.state.currentLine} />
+    <h3>Playing</h3>
+    <WordLookupApp line={text} />
     </div>
     );
   }
 });
 
 var MainGUI = React.createClass({
+  propTypes: {
+    filename: React.PropTypes.string
+  },
   getInitialState: function(){
-    return {page: 'filechooser'};
+    var cms = new CurrentMediaStore();
+    return {
+      page: 'filechooser',
+      cms : cms,
+      player : null,
+      cmsState : cms.getState()
+    };
+  },
+  componentWillMount: function(){
+    if(this.props.filename){
+      this.state.cms.loadVideoFile(this.props.filename);
+    }
+
+    var _this = this;
+    this.state.cms.on('state', function(state){
+      console.log("UPDATING_CMSSTATE");
+      _this.setState({'cmsState': state});
+    });
   },
   startPlaying : function(){
-    this.props.onStartPlaying();
-    this.setState({page: 'playing'});
+    var cmsState = this.state.cmsState;
+    console.log("STARTPLAYING", cmsState);
+    var player = new SubPlayer(cmsState.chosenFile);
+    console.log(cmsState.chosenSub);
+    player.setSub(cmsState.chosenSub);
+    this.setState({player: player, page: 'playing'});
   },
   render: function(){
     if (this.state.page == 'filechooser'){
-      return <FileChooserGUI cms={this.props.cms} goAction={this.startPlaying} />;
+      return (
+        <FileChooserGUI
+          cms={this.state.cms}
+          cmsState={this.state.cmsState}
+          goAction={this.startPlaying}/>
+        );
     }
     if (this.state.page == 'playing'){
-      return <PlayerGUI player={this.props.player}/>;
+      if(this.state.player){
+        return <PlayerGUI player={this.state.player}/>;
+      } else {
+        return <p>This shouldnt be displayed. Player not loaded yet</p>;
+      }
     }
   }
 });
 
 var FileChooserGUI = React.createClass({
   render: function(){
+    var cmsState = this.props.cmsState;
     var cms = this.props.cms;
-    console.log(cms);
+    console.log(cmsState);
 
     return (
       <div id={"chooser"} className={".col-xs-12"}>
       <h3>Choose a video file:</h3>
       <FileDropperBox
         onVideoFileChosen={cms.loadVideoFile.bind(cms)}
-        loadedFile={cms.chosenFile}
+        loadedFile={cmsState.chosenFile}
         placeHolderText={"Drop a video here"} />
       <h3>Choose a subtitle file:</h3>
       <SubtitleChooser
           onSubIndex={cms.setSub.bind(cms)}
-          subtitles={cms.subtitleList()} />
+          subtitles={cmsState.subtitleList} />
       <FileDropperBox
         onVideoFileChosen={cms.loadSubFile.bind(cms)}
         loadedFile={null}
@@ -81,7 +108,7 @@ var FileChooserGUI = React.createClass({
       <button type="button"
               id="startPlayingButton"
               className="btn btn-default"
-              disabled={cms.chosenFile === null}
+              disabled={cmsState.chosenFile === null}
               onClick={this.props.goAction}>Play!</button>
       </div>
       </div>
@@ -89,11 +116,6 @@ var FileChooserGUI = React.createClass({
   }
 });
 
-if (gui.App.argv[0]) {
-  cms.loadVideoFile(gui.App.argv[0]);
-}
-
-cms.on("change", render.bind(this, cms));
-render();
+React.renderComponent(<MainGUI filename={gui.App.argv[0]}/>, document.getElementById('wrapper'));
 
 })();

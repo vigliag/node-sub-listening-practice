@@ -5,8 +5,8 @@
   "main": "index.html",
   "window": {
     "title": "SubPlayer",
-    "width": 300,
-    "height": 600
+    "width": 410,
+    "height": 800
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

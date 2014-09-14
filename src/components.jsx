@@ -1,27 +1,35 @@
 /** @jsx React.DOM */
+/*global React:false*/
 
 var LineDisplayer = React.createClass({
   propTypes: {
       onWordSelected: React.PropTypes.func,
-      line: React.PropTypes.string.isRequired
+      line: React.PropTypes.string.isRequired,
+      selectedWord: React.PropTypes.any
+  },
+  onWordSelected: function(index){
+    this.props.onWordSelected(index);
   },
   render: function(){
     var line = this.props.line;
-    var onWordSelected = this.props.onWordSelected;
-    var selectedWord = this.props.selectedWord || null;
+    var selectedWord = this.props.selectedWord;
     var words = line.split(" ");
+
+    var _this= this;
     var clickableWords = words.map(function(word, index){
       return <span
-              onClick={onWordSelected}
+              onClick={_this.onWordSelected.bind(_this, word)}
               key={index}
-              className={selectedWord == index ? "selected" : ""}
+              className={selectedWord == word ? "selected" : ""}
               >
-                {word}
+                {word + " "}
              </span>;
     });
     return (
-      <div className="lineDisplayer">
+      <div className="lineDisplayer well">
+        <div>
         {clickableWords}
+        </div>
       </div>
     );
   }
@@ -29,28 +37,24 @@ var LineDisplayer = React.createClass({
 
 var WordDefinition = React.createClass({
   propTypes: {
-      initialWord: React.PropTypes.string,
+      word: React.PropTypes.string,
       dict: React.PropTypes.string.isRequired
   },
-  getInitialState: function(){
-    return {word: this.props.initialWord || null};
-  },
-  componentWillReceiveProps: function(nextProps){
-    if(nextProps.initialWord !== null){
-      this.setState({word: nextProps.initialWord});
-    }
-  },
   render: function(){
-    var word = this.state.word;
+    var word = this.props.word;
     var dict = this.props.dict;
-    var baseUrl = "http://mini.wordreference.com/mini/index.aspx?dict=";
-    var url = baseUrl + dict + "&w=" + word;
-    return (
-      <iframe id="dictIframe"
-              src={url}
-              name="WRmini">
-      </iframe>
+    var baseUrl = "http://wordreference.com/";
+    if(word){
+      word = word.toLowerCase().replace(/[\.,-\/#!$%\^&\*;:{}=\-_`~()]/g,"");
+      var url = baseUrl + dict + "/" + word;
+      return (
+        <iframe className="dictIframe"
+              src={url}>
+        </iframe>
       );
+    } else {
+      return <p>{"Click on a word to get its definition"}</p>;
+    }
   }
 });
 
@@ -61,9 +65,6 @@ var WordLookupApp = React.createClass({
   getInitialState: function(){
     return {selectedWord: null};
   },
-  componentWillReceiveProps: function(nextProps){
-    this.setState({selectedWord: null});
-  },
   onWordSelected : function(word){
     this.setState({selectedWord: word});
   },
@@ -71,7 +72,7 @@ var WordLookupApp = React.createClass({
     return(
       <div className="WordLookupApp">
       <LineDisplayer
-        line={this.props.line || "subs will be shown here"}
+        line={this.props.line || ""}
         selectedWord={this.state.selectedWord}
         onWordSelected={this.onWordSelected}
       />

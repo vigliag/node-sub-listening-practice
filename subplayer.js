@@ -16,6 +16,7 @@ function SubPlayer(videoPath){
 	this.setSub({lines: []});
 	this.mplayer = new Mplayer(videoPath);
 
+	this.currentLines = [];
 	var _this = this;
 
 	//this.mplayer.sendCommand("sub_select " + subtitleIndex);
@@ -24,8 +25,8 @@ function SubPlayer(videoPath){
 	this.mplayer.on('time', function (t){
 		if(t > _this.lastTime){ //note: this way subclock pauses when seeking back
 			_this.lastTime = t;
-			var current_lines = _this.subclock.tick(t);
-			this.emit("current_lines", current_lines); //inefficient
+			_this.currentLines = _this.subclock.tick(t);
+			_this.emit("state", _this.getState());
 		}
 	});
 
@@ -55,7 +56,15 @@ function SubPlayer(videoPath){
 util.inherits(SubPlayer, events.EventEmitter);
 var proto = SubPlayer.prototype;
 
-proto.repeatLastLine = function repeatLastLine(){
+proto.getState = function(){
+	return {
+		time: this.lastTime,
+		paused: this.paused,
+		currentLines: this.currentLines
+	};
+};
+
+proto.repeatLastLine = function(){
 	this.lastTime = this.lastTime - 110;
 	var seekCommand = ("seek " + ((this.lastLine.start / 1000) - 0.1)) + " 2";
 	this.mplayer.sendCommand(seekCommand);
@@ -65,11 +74,11 @@ proto.repeatLastLine = function repeatLastLine(){
 	}
 };
 
-proto.seekToEvent = function seekToEvent(subEvent){
+proto.seekToEvent = function(subEvent){
 	console.error("seekToEvent not implemented yet");
 };
 
-proto.setSub = function setSub(sub){
+proto.setSub = function(sub){
 	this.subclock = new SubClock(sub.lines);
 	if(sub.path){
 		this.mplayer.sendCommand("sub_load " + sub.path);
@@ -78,7 +87,7 @@ proto.setSub = function setSub(sub){
 	var _this = this;
 
 	this.subclock.on('line_end', function(line){
-		console.log("line_end " , this.lastLine, this.lastTime);
+		console.log("line_end " , _this.lastLine, _this.lastTime);
 		_this.lastLine = line;
 		_this.paused = true;
 		_this.mplayer.sendCommand("pause");
