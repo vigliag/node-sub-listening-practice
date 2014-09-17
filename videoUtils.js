@@ -6,10 +6,14 @@ var _ = require('lodash');
 function minimumTrackInformation(track, index){
 	var tags = track.tags || {};
 	var disposition = track.disposition || {};
+	var codec = track.codec_name;
+	if(codec.toLowerCase() == 'subrip'){
+		codec = 'srt';
+	}
 	return {
 		index : index, //for mplayer
 		streamId: track.index, //stream id for extraction using ffmpeg
-		codec : track.codec_name,
+		codec : codec,
 		language: tags.language,
 		name: tags.title,
 		default: disposition.default === 1 ? true : false
