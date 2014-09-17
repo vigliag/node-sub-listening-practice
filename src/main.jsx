@@ -7,6 +7,40 @@ var SubPlayer = require('./subplayer');
 
 (function(){
 
+var PlayerControls = React.createClass({
+  propTypes: {
+    player: React.PropTypes.object.isRequired,
+    playerState: React.PropTypes.object.isRequired
+  },
+  handleAutoPauseChange: function(event){
+    this.props.player.setAutoPause(event.target.checked);
+  },
+  handleShowSubsChange: function(event){
+    this.props.player.setShowSubs(event.target.checked);
+  },
+  render: function(){
+    var autoPause = this.props.playerState.autoPause;
+    var showSubs = this.props.playerState.showSubs;
+    return (
+    <div>
+      <label>
+        <input
+          type="checkbox"
+          checked={autoPause}
+          onChange={this.handleAutoPauseChange}
+          />AutoPause
+      </label>
+      <label>
+        <input
+         type="checkbox"
+         checked={showSubs}
+         onChange={this.handleShowSubsChange}/>ShowSubs
+      </label>
+    </div>
+    );
+  }
+});
+
 var PlayerGUI = React.createClass({
   propTypes: {
     player: React.PropTypes.object.isRequired
@@ -17,6 +51,7 @@ var PlayerGUI = React.createClass({
   componentDidMount: function(){
     var _this = this;
     this.props.player.on('state', function(state){
+      console.log("PLAYERSTATE", state);
       _this.setState({'playerState': state});
     });
   },
@@ -26,7 +61,8 @@ var PlayerGUI = React.createClass({
     return(
     <div className="playerGUI">
     <h3>Playing</h3>
-    <WordLookupApp line={text} />
+    <PlayerControls player={this.props.player} playerState={this.state.playerState}/>
+    <WordLookupApp line={text} hideText={!this.state.playerState.showSubs}/>
     </div>
     );
   }
@@ -87,6 +123,8 @@ var FileChooserGUI = React.createClass({
   render: function(){
     var cmsState = this.props.cmsState;
     var cms = this.props.cms;
+    var loading = cmsState.loading;
+    if(loading) alert(loading);
     console.log(cmsState);
 
     return (
@@ -94,16 +132,14 @@ var FileChooserGUI = React.createClass({
       <h3>Choose a video file:</h3>
       <FileDropperBox
         onVideoFileChosen={cms.loadVideoFile.bind(cms)}
-        loadedFile={cmsState.chosenFile}
-        placeHolderText={"Drop a video here"} />
+        text={ loading ? "Loading" : (cmsState.chosenFile ||"Drop a video here")}/>
       <h3>Choose a subtitle file:</h3>
       <SubtitleChooser
           onSubIndex={cms.setSub.bind(cms)}
           subtitles={cmsState.subtitleList} />
       <FileDropperBox
         onVideoFileChosen={cms.loadSubFile.bind(cms)}
-        loadedFile={null}
-        placeHolderText={"Drop additional subtitles here"} />
+        text={"Drop additional subtitles here"} />
       <div style={{"text-align" : "right"}}>
       <button type="button"
               id="startPlayingButton"

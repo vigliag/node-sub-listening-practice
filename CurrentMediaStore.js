@@ -9,6 +9,7 @@ var CurrentMediaStore = function(){
   this.internalSubs = [];
   this.chosenFile = null;
   this.chosenSubId = null;
+  this.loading = false;
 };
 
 util.inherits(CurrentMediaStore, events.EventEmitter);
@@ -24,7 +25,8 @@ CurrentMediaStore.prototype.getState = function () {
     chosenFile : this.chosenFile,
     chosenSubId : this.chosenSubId,
     chosenSub: this.getChosenSub(),
-    subtitleList: this.subtitleList()
+    subtitleList: this.subtitleList(),
+    loading: this.loading
   };
 };
 
@@ -38,12 +40,16 @@ CurrentMediaStore.prototype.loadVideoFile = function (fileName) {
   this.chosenFile = fileName;
   this.chosenSubId = 0;
 
-  //TODO Set loading indicator somewhere
-  console.log("loading subs from file");
 
+  //TODO Set loading indicator somewhere
+  this.loading = true;
+  this.emit("state", this.getState());
+  console.log("loading subs from file");
+  
   var _this = this;
   SubProvider.parseSubsFromVideoAsync(fileName).then(function(subs){
     _this.internalSubs = subs;
+    _this.loading = false;
     _this.emit("state", _this.getState());
   });
 };

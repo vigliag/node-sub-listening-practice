@@ -1,6 +1,16 @@
 /** @jsx React.DOM */
 /*global React:false*/
 
+var PlayerControls = React.createClass({
+  propTypes: {
+    player: React.PropTypes.object.isRequired,
+    playerState: React.PropTypes.object
+  },
+  render: function(){
+    return <button>Play</button>;
+  }
+});
+
 var LineDisplayer = React.createClass({
   propTypes: {
       onWordSelected: React.PropTypes.func,
@@ -13,7 +23,7 @@ var LineDisplayer = React.createClass({
   render: function(){
     var line = this.props.line;
     var selectedWord = this.props.selectedWord;
-    var words = line.split(" ");
+    var words = line.replace("\\N", " ").split(" ");
 
     var _this= this;
     var clickableWords = words.map(function(word, index){
@@ -60,7 +70,8 @@ var WordDefinition = React.createClass({
 
 var WordLookupApp = React.createClass({
   propTypes: {
-      line: React.PropTypes.string
+      line: React.PropTypes.string,
+      hideText: React.PropTypes.bool
   },
   getInitialState: function(){
     return {selectedWord: null};
@@ -69,10 +80,11 @@ var WordLookupApp = React.createClass({
     this.setState({selectedWord: word});
   },
   render: function(){
+    var lineToDisplay = this.props.hideText === true? "" : (this.props.line || "");
     return(
       <div className="WordLookupApp">
       <LineDisplayer
-        line={this.props.line || ""}
+        line={lineToDisplay}
         selectedWord={this.state.selectedWord}
         onWordSelected={this.onWordSelected}
       />
@@ -96,10 +108,9 @@ var FileDropperBox = React.createClass({
     }
   },
   render: function () {
-    var text = this.props.loadedFile || this.props.placeHolderText;
     return (
     <div id="holder" className="droppable well" onDrop={this.handleDrop}>
-      <p>{text}</p>
+      <p>{this.props.text}</p>
     </div>
     );
   }

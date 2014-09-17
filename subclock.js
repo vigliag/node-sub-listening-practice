@@ -21,7 +21,7 @@ proto.isCurrent = function(line, time){
 
 proto.tick = function(time) {
 	var atime = this.approx(time);
-	console.log("time", time, atime);
+	//console.log("time", time, atime);
 	var endingLine = this.endMap[atime];
 	if(endingLine){
 		console.log("emitting line_end", endingLine);

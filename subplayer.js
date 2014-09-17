@@ -5,8 +5,10 @@ var SubClock = require('./subclock');
 
 function SubPlayer(videoPath){
 	console.log("ASFAFSWAFW" ,videoPath);
-	this.subAlwaysVisible = true;
+
+	this.subAlwaysVisible = false;
 	this.displaySubsInMplayer = true; //not used
+	this.autoPause = true;
 
 	this.paused = false;
 	this.lastTime = -1;
@@ -60,8 +62,22 @@ proto.getState = function(){
 	return {
 		time: this.lastTime,
 		paused: this.paused,
-		currentLines: this.currentLines
+		currentLines: this.currentLines,
+		autoPause: this.autoPause,
+		showSubs: this.subAlwaysVisible
 	};
+};
+
+proto.setAutoPause = function(value){
+	this.autoPause = value;
+	this.mplayer.subVisibility(value);
+	this.emit('state', this.getState());
+};
+
+proto.setShowSubs = function(value){
+	this.subAlwaysVisible = value;
+	this.mplayer.subVisibility(value);
+	this.emit('state', this.getState());
 };
 
 proto.repeatLastLine = function(){
@@ -89,8 +105,10 @@ proto.setSub = function(sub){
 	this.subclock.on('line_end', function(line){
 		console.log("line_end " , _this.lastLine, _this.lastTime);
 		_this.lastLine = line;
-		_this.paused = true;
-		_this.mplayer.sendCommand("pause");
+		if(_this.autoPause){
+			_this.paused = true;
+			_this.mplayer.sendCommand("pause");
+		}
 	});
 };
 
