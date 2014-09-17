@@ -97,7 +97,9 @@ proto.seekToEvent = function(subEvent){
 proto.setSub = function(sub){
 	this.subclock = new SubClock(sub.lines);
 	if(sub.path){
-		this.mplayer.sendCommand("sub_load " + sub.path);
+		var subLoadCommand = "sub_load " + sub.path;
+		this.mplayer.sendCommand(subLoadCommand);
+		console.log("SUBLOAD", subLoadCommand);
 		this.mplayer.sendCommand("sub_select 0");
 	}
 	var _this = this;

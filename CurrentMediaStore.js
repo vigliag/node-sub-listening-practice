@@ -40,12 +40,11 @@ CurrentMediaStore.prototype.loadVideoFile = function (fileName) {
   this.chosenFile = fileName;
   this.chosenSubId = 0;
 
-
   //TODO Set loading indicator somewhere
   this.loading = true;
   this.emit("state", this.getState());
   console.log("loading subs from file");
-  
+
   var _this = this;
   SubProvider.parseSubsFromVideoAsync(fileName).then(function(subs){
     _this.internalSubs = subs;
